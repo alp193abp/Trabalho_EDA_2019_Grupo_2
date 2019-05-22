@@ -22,30 +22,49 @@ class Compressed_Trie{
 			insert(root,palavra,documents);
 		};
 		
+		vector<int> CT_Search(string palavra){
+		    vector<int> documents=search(root,palavra);
+		    return documents;
+		};
+		
 	private:
 		void insert(Node* current, string palavra,vector<int> documents){
-			if(current->LePo[palavra[0]]!=nullptr){
-				current=current->LePo[palavra[0]];
+			if(palavra!="" and current->LePo[&palavra[0]]!=nullptr){
+				current=current->LePo[&palavra[0]];
 				palavra.erase(0,1);
 				insert(current,palavra,documents);
 			}else{
 				if(palavra!=""){
 					Node* newNode= new Node;
-					current->LePo[palavra[0]]=newNode;
+					current->LePo[&palavra[0]]=newNode;
 					palavra.erase(0,1);
-					current=current->LePo[palavra[0]];
+					current=newNode;
 					insert(current,palavra,documents);
 				}else{
 					current->documentIds=documents;
 				}
 			}
 		};
+		
+		vector<int> search(Node* current, string palavra){
+		    if(palavra=="") return {};
+		    if(current->LePo[&palavra[0]]!=nullptr){
+		        if(palavra.length()==1) return current->LePo[&palavra[0]]->documentIds;
+		        current=current->LePo[&palavra[0]];
+		        palavra.erase(0,1);
+		        return search(current,palavra);
+		    }
+		    return {};
+		};
 };
 
 int main() {
-	string text;
-	text="teste";
-	text.erase(0,1);
-	cout<<text[0];
+	Compressed_Trie trie;
+	string palavra="teste";
+	vector<int> docids={1,2,3,4};
+	trie.CT_Insert(palavra,docids);
+	string palavra2="teste";
+	vector<int> docs=trie.CT_Search(palavra2);
+	for(int i=0;i<docs.size();i++) cout<<docs[i];
     return 0;
 }
