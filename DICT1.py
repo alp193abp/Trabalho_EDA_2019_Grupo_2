@@ -1,11 +1,17 @@
 import string as st
 import re
+import time
 
 def id_texts(archiv):
+    t0=time.time()
     list_id = re.findall('<doc id="\d+"',archiv)
+    list_end = re.findall('ENDOFARTICLE',archiv)
+    print('Tempo inicial:'+str(time.time()-t0))
     list_text = []
     dic_texts = {}
-    for i in list_id:
+    
+    t1=time.time()
+    for i in range(len(list_id)):
         id_original=i[9:len(i)-1]
         
         start_doc = archiv.find(i)
@@ -23,13 +29,18 @@ def id_texts(archiv):
         list_text.append([id_original,title,text])
         
     list_text.sort(key=lambda x: x[1])
+    print('Tempo for:'+str(time.time()-t1))
     
-    while True:
-        if list_text[0][1]=='' and list_text[0][1]=='':
+    t2=time.time()
+    while True:rep
+        if list_text[0][1]=='' and list_text[0][2]=='':
             list_text.pop(0)
         else:
             break
-            
-    dic_texts={x[0]:[x[1],x[2]] for x in list_text}
+    print('Tempo while:'+str(time.time()-t2))
+    
+    t3=time.time()
+    dic_texts={i:[list_text[i][1],list_text[i][2]] for i in range(len(list_text))}
+    print('Tempo dict:'+str(time.time()-t3))
     
     return dic_texts
