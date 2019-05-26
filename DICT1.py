@@ -1,10 +1,9 @@
 import string as st
 import re
-import _pickle as cPickle
 
 def id_texts(archiv):
     list_id = re.findall('<doc id="\d+"',archiv)
-    list_text =[]
+    list_text = []
     dic_texts = {}
     for i in list_id:
         id_original=i[9:len(i)-1]
@@ -21,12 +20,16 @@ def id_texts(archiv):
         end_text=len(doc)
         text=doc[start_text:end_text]
         
-        if title!='' and text!='':
-            list_text.append([id_original,[title,text]])
+        list_text.append([id_original,title,text])
         
     list_text.sort(key=lambda x: x[1])
     
-    for j in range(len(list_text)):
-        dic_texts[j]=list_text[j][1]
+    while True:
+        if list_text[0][1]=='' and list_text[0][1]=='':
+            list_text.pop(0)
+        else:
+            break
+            
+    dic_texts={x[0]:[x[1],x[2]] for x in list_text}
     
     return dic_texts
