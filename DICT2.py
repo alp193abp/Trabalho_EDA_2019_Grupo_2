@@ -1,3 +1,7 @@
+import string as st
+import re
+import _pickle as cPickle
+
 def word_id(dictionary):
     dict2={}
     dict3={}

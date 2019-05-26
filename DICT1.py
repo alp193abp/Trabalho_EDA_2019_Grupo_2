@@ -21,11 +21,12 @@ def id_texts(archiv):
         end_text=len(doc)
         text=doc[start_text:end_text]
         
-        list_text.append([id_original,[title,text]])
+        if title!='' and text!='':
+            list_text.append([id_original,[title,text]])
         
     list_text.sort(key=lambda x: x[1])
     
     for j in range(len(list_text)):
-        dic_texts[j]=list_text[1]
+        dic_texts[j]=list_text[j][1]
     
     return dic_texts
