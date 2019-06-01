@@ -36,6 +36,7 @@ vector<int> intersection(vector<int> vet1,vector<int> vet2){
 struct Node{
 	map<string,Node*> LePo;
 	vector<int> documentIds;
+	int rel=0;
 };
 
 class Compressed_Trie{
@@ -59,6 +60,10 @@ class Compressed_Trie{
 			return documents;
 		};
 		
+		vector<string> SugerirPalavra(string palavra){
+			return {""};
+		}
+		
 	private:
 		vector<string> split(string palavra){
 			string::size_type x = palavra.find(" ");
@@ -74,28 +79,32 @@ class Compressed_Trie{
 		}
 		
 		void insert(Node* current, string palavra,vector<int> documents){
-			if(palavra!="" and current->LePo[&palavra[0]]!=nullptr){
-				current=current->LePo[&palavra[0]];
+			current->rel=current->rel+documents.size();
+			string fl=palavra.substr(0,1);
+			if(palavra!="" and current->LePo[fl]!=nullptr){
+				current=current->LePo[fl];
 				palavra.erase(0,1);
 				insert(current,palavra,documents);
 			}else{
 				if(palavra!=""){
 					Node* newNode= new Node;
-					current->LePo[&palavra[0]]=newNode;
+					current->LePo[fl]=newNode;
 					palavra.erase(0,1);
 					current=newNode;
 					insert(current,palavra,documents);
 				}else{
-					current->documentIds=documents;
+					if(current->documentIds.empty()) current->documentIds=documents;
+					else current->documentIds.insert( current->documentIds.end(), documents.begin(), documents.end() );
 				}
 			}
 		};
 		
 		vector<int> search(Node* current, string palavra){
+			string fl=palavra.substr(0,1);
 		    if(palavra=="") return {};
-		    if(current->LePo[&palavra[0]]!=nullptr){
-		        if(palavra.length()==1) return current->LePo[&palavra[0]]->documentIds;
-		        current=current->LePo[&palavra[0]];
+		    if(current->LePo[fl]!=nullptr){
+		        if(palavra.length()==1) return current->LePo[fl]->documentIds;
+		        current=current->LePo[fl];
 		        palavra.erase(0,1);
 		        return search(current,palavra);
 		    }
@@ -106,78 +115,83 @@ class Compressed_Trie{
 
 int main() {
 	Compressed_Trie trie;
-	cout<<"Loading words into the trie... ";
+	cout<<".. Loading index ";
 	//INSERIR AQUI AS PALAVRAS NA TRIE COM trie.CT_Insert(palavra,vector<int> de IDS)
 	
 	//TERMINO DE INSERÇÃO
-	cout<<"Done!"<<endl;
+	cout<<"done!"<<endl;	
 	
-	//TEMPORARIO ENQUANTO NAO TEMOS OS DADOS
-	int i,j,It;
-	vector<int> docId;
-	string palavra;	
-	while(true){
-		cout<<"Do you want to insert or search for a word? (1) insert (2) search (3) leave"<<endl;
-		cin >> i;
-		if(i==1){
-			docId.clear();
-			palavra="";
-			cout<<"Please enter the word you want to insert"<<endl;
-			cin >> palavra;
-			cout<<"Please enter the document ID's that your word is in it (Put 0 when you are done)"<<endl;
-			cin >> j;
-			while(j!=0){
-				docId.push_back(j);
-				cin >> j;
-			}
-			trie.CT_Insert(palavra,docId);
-		}
-		else if(i==2){
-			docId.clear();
-			palavra="";
-			cout<<"Please enter the word you want to search"<<endl;
-			std::getline(std::cin >> std::ws, palavra);
-			cout<<"Here is all the documents your word is in it"<<endl;
-			docId=trie.CT_Search(palavra);
-			for(It=0;It!=docId.size();It++){
-				cout<<docId[It]<<" ";
-			}
-			cout<<endl;
-		}else{
-			break;
-		}
-	}
-	//FIM DO TEMPORARIO
-	
-	/*
 	//INTERFACE DE PESQUISA COM O USUARIO
-	int n,i;
-	string palavra;
+	int i,j,k,l,m;
+	string palavra,n;
 	clock_t start, end;
+	vector<string> sug;
     double cpu_time_used;
-    vector<int> documents;
+    vector<int> documents,docId;
+ 	//INSERÇÃO DE PALAVRAS ENQUANTO NAO TEMOS OS DADOS  
+    while(true){
+    	docId.clear();
+		palavra="";
+		cout<<"Please enter the word you want to insert"<<endl;
+		cin >> palavra;
+		if(palavra=="0") break;
+		cout<<"Please enter the document ID's that your word is in it (Put 0 when you are done)"<<endl;
+		cin >> j;
+		while(j!=0){
+			docId.push_back(j);
+			cin >> j;
+		}
+		trie.CT_Insert(palavra,docId);	
+    }
+    //FIM DA INSERÇÃO DE PALAVRAS ENQUANTO NAO TEMOS OS DADOS  
+    
 	while(true){
-		cout<<"Escolha o tipo de pesquisa desejada: (1) Normal (2) Sintática"<<endl;
+		cout<<"Choose the type of query: (1) Normal (2) Syntatic"<<endl;
 		cin >> i;
+		k=0;
+		j=0;
 		if(i==1){
-			n=0;
-			cout<<"Quais palavras deseja buscar?"<<endl;
-			cin >> palavra;
+			n.clear();
+			sug.clear();
+			cout<<"Enter your query:"<<endl;
+			std::getline(std::cin >> std::ws, palavra);
 			start = clock();
 			documents=trie.CT_Search(palavra);
 			end = clock();
 			cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
-			cout<<"Foram achados "<<documents.size()<<" resultados em "<<cpu_time_used<<" segundos";
-			cout<<"Qual voce deseja abrir? (-1) para os proximos vintes."<<endl;
-			
+			j=documents.size();
+			if(j==0){
+				cout<<"No results were found ( "<<cpu_time_used<<" seconds )"<<endl;
+				sug=trie.SugerirPalavra(palavra);
+				cout<<"Did you mean:"<<endl;
+				for(int jb=0;jb<sug.size();jb++) cout<<sug[jb]<<endl;
+			}else{
+				cout<<".. About "<<j<<" results ( "<<cpu_time_used<<" seconds )"<<endl;
+				while(k<j){
+					for(int m=k;m<min(k+20,j);m++){
+						cout<<"["<<m+1<<"] ";
+						cout<<"Title of document "<<m+1<<endl;
+					}
+					cout<<"Do you want to open any result [n for more results or result number] or do another query [q]?"<<endl;
+					cin >> n;
+					if(n=="q") break;
+					else{
+						if(n=="n") k=k+20;
+						else{
+							l=stoi(n);
+							if(l>j || l<=k || l>l+20) cout<<"No document "<<l<<endl;
+							else cout<<"Opening document "<<l<<endl;
+						}
+					}
+				}
+			}
 		}else{
 			//PESQUISA SINTÁTICA - LAUDER
-			cout<<"Digite a expressão que deseja buscar."<<endl;
+			cout<<"Digite a expressao que deseja buscar."<<endl;
 			cin >> palavra;
 			//FIM PESQUISA SINTÁTICA - LAUDER
 		}
 	}
 	//FIM DA INTERFACE DE PESQUISA COM O USUARIO
-	*/
     return 0;
 }
