@@ -9,6 +9,35 @@
 
 using namespace std;
 
+string abrir(string nome){
+	//abre o arquivo e cria uma string contendo tudo dele
+	ifstream arquivo;
+    arquivo.open(nome);
+    string linha;
+    stringstream str;
+    while(getline(arquivo,linha)){
+    	str << linha << " ";
+	}
+	string doc = str.str();
+	return doc;
+}
+
+map <string,string> velho_novo(string doc){
+	map <string,string> idvn;
+	doc.replace(doc.size()-2,1,",");
+	string::size_type x = doc.find(",");
+	while (x!=string::npos){
+		string key = doc.substr(1,x-1);
+		doc = doc.substr(x+1);
+		x = doc.find(",");
+		string value = doc.substr(1,x-1);
+		doc = doc.substr(x+1);
+		x = doc.find(",");
+		idvn[key]=value;
+	}
+	return idvn;
+}
+
 string strip(string palavra){
 	string punc="ABCDEFGHIJKLMNOPQRSTUVXWYZabcdefghijklmnopqrstuvxwyz0123456789";
 	int x=palavra.find_first_of(punc);
@@ -39,9 +68,7 @@ set<string> mysplit(string palavras_total){
 	return palavras;
 }
 
-map <string,vector<string>> limpeza(string arquivo,map<string,string> dic){
-	map <string,string> titulos;
-	map <string,vector<string>> ocorrencia;
+map <string,vector<string>> limpeza(string arquivo,map<string,string> ids,map<string,string> &titulos,map<string,vector<string>> &ocorrencia){
 	//Dividir palavras que possuem --
 	string::size_type a = arquivo.find("--");
 	while(a!=string::npos){
@@ -54,7 +81,7 @@ map <string,vector<string>> limpeza(string arquivo,map<string,string> dic){
 		//descobrir o ID
 		string::size_type c = arquivo.find("title=",b);
 		string id_velho = arquivo.substr(b+9,c-b-11);
-		string id = dic[id_velho];
+		string id = ids[id_velho];
 		//descobrir o title
 		//Atilio já vai ter feito, mas caso nao
 		string::size_type d = arquivo.find("nonfiltered=",c);
@@ -91,29 +118,39 @@ void printmap(map<string,vector<string>> m){
 		cout << it->first << " => ";
 		vector <string> k=it->second;
 		for(int i=0; i<k.size(); i++) {
-			cout << k[i] << " ";
-		cout << endl;
+			cout << k[i] << ",";
 		}
+		cout << endl;
+	}
+	
+}
+
+void printmap2(map<string,string> m){
+	for (map<string,string>::iterator it=m.begin();it!=m.end();it++){
+		cout << it->first << " => " << it->second << endl;
 	}
 }
 
 int main (){
+	map <string,string> titulos;
+	map <string,vector<string>> ocorrencia;
+	//abre o arquivo de ids (velho,novo) e gera um dicionario(id_velho:id_novo)
+	string doc_id = abrir("idnew.txt");
+	map <string,string> ids = velho_novo(doc_id);
+	/*for (i=0,i<164,i++){
+		string m=to_string(10000*i);
+		string n=to_string(10000*(i+1));
+		string nome="englishText_"+m+"_"+n+".txt";
+		//abre o arquivo e cria uma string contendo tudo dele
+		string doc_texto = abrir(nome);
+		//faz a limpeza no texto e retorna a lista de palavra com os ids de ocorrência
+		map <string,vector<string>> x = limpeza(doc_texto,ids,titulos,ocorrencia);
+	}*/
+		
 	//abre o arquivo e cria uma string contendo tudo dele
-    ifstream abrir;
-    abrir.open("testm.txt");
-    string linha;
-    ostringstream str;
-    while(getline(abrir,linha)){
-    	str << linha << endl;
-	}
-	string arquivo = str.str();
-	//abre o arquivo de ids(velho,novo)
-	map<string,string> dic1;
-	dic1["214730"] = "1";
-	dic1["45566"] = "2";
-	map <string,vector<string>> x = limpeza(arquivo,dic1);
-	printmap(x);
-	
+	string doc_texto = abrir("englishText_0_10000.txt");
+	//faz a limpeza no texto e retorna a lista de palavra com os ids de ocorrência
+	map <string,vector<string>> x = limpeza(doc_texto,ids,titulos,ocorrencia);
 	
 	return 0;
 }
