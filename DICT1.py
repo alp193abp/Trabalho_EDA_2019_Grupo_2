@@ -5,16 +5,19 @@ import time
 def id_texts(archiv):
     t0=time.time()
     list_id = re.findall('<doc id="\d+"',archiv)
+    print(len(list_id))
     list_end = re.findall('ENDOFARTICLE',archiv)
+    print(len(list_end)
     print('Tempo inicial:'+str(time.time()-t0))
     list_text = []
-    dic_texts = {}
     
     t1=time.time()
     for i in range(len(list_id)):
-        id_original=i[9:len(i)-1]
+        j=list_id[i]
+        k=list_end[i]
+        id_original=j[9:len(j)-1]
         
-        start_doc = archiv.find(i)
+        start_doc = archiv.find(j)
         end_doc = archiv[start_doc:len(archiv)].find('ENDOFARTICLE')+start_doc
         doc=archiv[start_doc:end_doc]
         
