@@ -6,8 +6,30 @@
 #include <map>
 #include <vector>
 #include <time.h>
+#include <bits/stdc++.h> 
 
 using namespace std;
+//******** SORTIND WORDS BY RELEVANCE ********//
+bool arrayComparison(array<int,2> j,array<int,2> k){
+	if(j[0]>k[0]) return true;
+	else return false;
+}
+
+vector<string> sortByRel(vector<string> words,vector<int> rel){
+	array<int,2> arr[words.size()];
+	for(int i=0;i<words.size();i++){
+		arr[i]={rel[i],i};
+	}
+	int n = sizeof(arr) / sizeof(arr[0]);
+	stable_sort(arr, arr + n,arrayComparison);
+	vector<string> Sorted;
+	for(int i=0;i<rel.size();i++){
+		Sorted.push_back(words[arr[i][1]]);
+	}
+	return Sorted;
+}
+//******** END OF SORTING WORDS BY RELEVANCE ********//	
+	
 //******** ARRAY COMPARISON FUNCTIONS ********//
 
 //**** INTERSECTION: ****//
@@ -60,11 +82,83 @@ class Compressed_Trie{
 			return documents;
 		};
 		
-		vector<string> SugerirPalavra(string palavra){
-			return {""};
+		vector<string> autoComplete(string palavra){
+			vector<string> sep=split(palavra);
+			vector<string> palUnica,sugPalFinal,sugFinal;
+			for(int a=0;a<sep.size()-1;a++){
+				palUnica=autoCompleteP(sep[a]);
+				sep[a]=palUnica[0];
+			}
+			sugPalFinal=autoCompleteP(sep[sep.size()-1]);
+			for(int a=0;a<sugPalFinal.size();a++){
+				for(int b=sep.size()-2;b>=0;b--){
+					sugPalFinal[a]=sep[b]+" "+sugPalFinal[a];
+				}
+			}
+			return sugPalFinal;
 		}
 		
 	private:
+		
+		vector<string> findAllWords(string Prefix,Node* start,int depth,vector<int> &relVec,string Rest){		
+			if(start==nullptr) return {};
+			if(depth==0){
+				relVec.push_back(start->rel);
+				return {Prefix};
+			}
+			vector<string> alphabet,res,words;
+			for(auto const& imap: start->LePo) {
+	  			if(imap.second!=nullptr) alphabet.push_back(imap.first);
+			}
+			words.push_back(Prefix);
+			relVec.push_back(start->rel);
+			for(int i=0;i<alphabet.size();i++){
+				if(words.size()>10000) break;
+				if(alphabet[i]==Rest) continue;
+				res=findAllWords(Prefix+alphabet[i],start->LePo[alphabet[i]],depth-1,relVec,"");
+				words.insert(words.end(),res.begin(),res.end());				
+			}
+			return words;
+		}
+		
+		Node* findNode(string palavra){
+			if(palavra=="") return nullptr;
+			string primeiraLetra = palavra.substr(0,1);
+			Node* current=root;
+			while(palavra!=""){
+				if(current->LePo[primeiraLetra]==nullptr) return nullptr;
+				current=current->LePo[primeiraLetra];
+				palavra.erase(0,1);
+				primeiraLetra=palavra.substr(0,1);
+			}
+			return current;
+		}
+		
+		vector<string> autoCompleteP(string palavra){
+			vector<string> words,aux,ans;
+			string rem;
+			vector<int> rel;
+			if(palavra.size()>5){
+				aux=findAllWords(palavra,findNode(palavra),20,rel,"");
+				words.insert(words.end(),aux.begin(),aux.end());
+			}else{
+				aux=findAllWords(palavra,findNode(palavra),2,rel,"");
+				words.insert(words.end(),aux.begin(),aux.end());
+			}
+			while(words.size()<10000 and palavra!=""){
+				rem=palavra[palavra.size()-1];
+				palavra.erase(palavra.size()-1,1);
+				aux=findAllWords(palavra,findNode(palavra),2,rel,rem);
+				words.insert(words.end(),aux.begin(),aux.end());
+			}
+			words=sortByRel(words,rel);
+			for(int j=0;j<words.size();j++){
+				ans.push_back(words[j]);
+				if(j>=9) break;
+			}
+			return ans;
+		}
+		
 		vector<string> split(string palavra){
 			string::size_type x = palavra.find(" ");
 			if(x==string::npos) return {palavra};
@@ -79,7 +173,6 @@ class Compressed_Trie{
 		}
 		
 		void insert(Node* current, string palavra,vector<int> documents){
-			current->rel=current->rel+documents.size();
 			string fl=palavra.substr(0,1);
 			if(palavra!="" and current->LePo[fl]!=nullptr){
 				current=current->LePo[fl];
@@ -93,6 +186,7 @@ class Compressed_Trie{
 					current=newNode;
 					insert(current,palavra,documents);
 				}else{
+					current->rel=current->rel+documents.size();
 					if(current->documentIds.empty()) current->documentIds=documents;
 					else current->documentIds.insert( current->documentIds.end(), documents.begin(), documents.end() );
 				}
@@ -132,7 +226,7 @@ int main() {
     while(true){
     	docId.clear();
 		palavra="";
-		cout<<"Please enter the word you want to insert"<<endl;
+		cout<<"Please enter the word you want to insert (ENTER 0 TO LEAVE)"<<endl;
 		cin >> palavra;
 		if(palavra=="0") break;
 		cout<<"Please enter the document ID's that your word is in it (Put 0 when you are done)"<<endl;
@@ -144,7 +238,6 @@ int main() {
 		trie.CT_Insert(palavra,docId);	
     }
     //FIM DA INSERÇÃO DE PALAVRAS ENQUANTO NAO TEMOS OS DADOS  
-    
 	while(true){
 		cout<<"Choose the type of query: (1) Normal (2) Syntatic"<<endl;
 		cin >> i;
@@ -162,7 +255,7 @@ int main() {
 			j=documents.size();
 			if(j==0){
 				cout<<"No results were found ( "<<cpu_time_used<<" seconds )"<<endl;
-				sug=trie.SugerirPalavra(palavra);
+				sug=trie.autoComplete(palavra);
 				cout<<"Did you mean:"<<endl;
 				for(int jb=0;jb<sug.size();jb++) cout<<sug[jb]<<endl;
 			}else{
@@ -170,7 +263,7 @@ int main() {
 				while(k<j){
 					for(int m=k;m<min(k+20,j);m++){
 						cout<<"["<<m+1<<"] ";
-						cout<<"Title of document "<<m+1<<endl;
+						cout<<"Title of document "<<documents[m]<<endl;
 					}
 					cout<<"Do you want to open any result [n for more results or result number] or do another query [q]?"<<endl;
 					cin >> n;
