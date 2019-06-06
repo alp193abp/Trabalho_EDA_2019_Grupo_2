@@ -262,9 +262,28 @@ class Compressed_Trie{
 		};
 };
 //**************** END OF TRIE CODE ****************//
-
+////Função que printa o texto do artigo
+void print_texto(int number){
+	string name_directory;
+	std::string s = std::to_string(number);
+	name_directory="textos_processados_python/"+s+".txt";
+	ifstream input(name_directory);
+	char data;
+	while (!input.eof()){
+		input.get(data);
+		cout << data;
+	}
+}
+	
 int main() {
 	Compressed_Trie trie;
+	int i,j,k,l,m;
+	string palavra,n;
+	clock_t start, end;
+	vector<string> sug;
+    double cpu_time_used;
+    vector<int> documents,docId;
+    
 	cout<<".. Loading index ";
 	//COMEÇO DE INSERÇÃO - INSERIR AQUI AS PALAVRAS NA TRIE COM trie.CT_Insert(palavra,vector<int> de IDS)
 	
@@ -302,12 +321,6 @@ int main() {
 	cout<<"done!"<<endl;	
 	
 	//INTERFACE DE PESQUISA COM O USUARIO
-	int i,j,k,l,m;
-	string palavra,n;
-	clock_t start, end;
-	vector<string> sug;
-    double cpu_time_used;
-    vector<int> documents,docId;
     
     
 	while(true){
@@ -345,7 +358,9 @@ int main() {
 						else{
 							l=stoi(n);
 							if(l>j || l<=k || l>l+20) cout<<"No document "<<l<<endl;
-							else cout<<"Opening document "<<l<<endl;
+							else{
+							print_texto(l);
+							}
 						}
 					}
 				}
