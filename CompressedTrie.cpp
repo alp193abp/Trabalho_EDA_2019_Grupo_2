@@ -1,4 +1,5 @@
 #include <iostream>
+#include <fstream>
 #include <iomanip>
 #include <sstream>
 #include <string>
@@ -66,6 +67,24 @@ class Compressed_Trie{
 		Node* root=new Node;
 		
 	public:
+		void deserialize(string fileName){
+			ifstream myfile;
+			myfile.open(fileName+".txt");
+			string serialization;
+			getline(myfile,serialization);
+			PrivDeserialization(serialization,root);
+			myfile.close();
+		}
+		
+		void serialize(string fileName){
+			ofstream myfile;
+			myfile.open(fileName+".txt");
+			string serialization;
+			PrivSerialize(root,serialization);
+			myfile<<serialization;
+			myfile.close();
+		};
+		
 		void CT_Insert(string palavra,vector<int> documents){
 			insert(root,palavra,documents);
 		};
@@ -99,6 +118,43 @@ class Compressed_Trie{
 		}
 		
 	private:
+		
+		void PrivDeserialization(string& ser,Node* current){
+			while(ser!=""){
+				if(ser.substr(0,1)=="["){
+					string vec=ser.substr(1,ser.find("]")-1);
+					ser.substr(1,ser.find("]"));
+					ser.erase(0,ser.find("]")+1);
+					vector<int> docs;
+					size_t pos=vec.find(",");
+					while(pos!=string::npos){
+						docs.push_back(stoi(vec.substr(0,pos)));
+						vec.erase(0,vec.find(",")+1);
+						pos=vec.find(",");
+					}
+					if(vec!="") docs.push_back(stoi(vec));
+					current->documentIds=docs;
+					break;
+				}else{
+					Node* newNode= new Node;
+					current->LePo[ser.substr(0,1)]=newNode;
+					ser.erase(0,1);
+					PrivDeserialization(ser,newNode);
+				}
+			}
+		}
+		
+		void PrivSerialize(Node* test,string& serialization){
+			for(auto const& imap: test->LePo) {
+				serialization+=imap.first;
+				PrivSerialize(test->LePo[imap.first],serialization);
+			};
+			serialization+="[";
+			int n = test->documentIds.size();
+			for(int i=0;i<n-1;i++) serialization+=to_string(test->documentIds[i])+",";
+			if(n>0) serialization+=to_string(test->documentIds[n-1]);
+			serialization+="]";
+		};
 		
 		vector<string> findAllWords(string Prefix,Node* start,int depth,vector<int> &relVec,string Rest){		
 			if(start==nullptr) return {};
@@ -210,18 +266,11 @@ class Compressed_Trie{
 int main() {
 	Compressed_Trie trie;
 	cout<<".. Loading index ";
-	//INSERIR AQUI AS PALAVRAS NA TRIE COM trie.CT_Insert(palavra,vector<int> de IDS)
+	//COMEÇO DE INSERÇÃO - INSERIR AQUI AS PALAVRAS NA TRIE COM trie.CT_Insert(palavra,vector<int> de IDS)
 	
-	//TERMINO DE INSERÇÃO
-	cout<<"done!"<<endl;	
+	//TEMPORARIO
 	
-	//INTERFACE DE PESQUISA COM O USUARIO
-	int i,j,k,l,m;
-	string palavra,n;
-	clock_t start, end;
-	vector<string> sug;
-    double cpu_time_used;
-    vector<int> documents,docId;
+	
  	//INSERÇÃO DE PALAVRAS ENQUANTO NAO TEMOS OS DADOS  
     while(true){
     	docId.clear();
@@ -238,6 +287,29 @@ int main() {
 		trie.CT_Insert(palavra,docId);	
     }
     //FIM DA INSERÇÃO DE PALAVRAS ENQUANTO NAO TEMOS OS DADOS  
+    
+	
+	//FIM DO TEMPORARIO
+	
+	//SERIALIZAÇÕES:
+	
+	//trie.serialize("serialization");
+	//trie.deserialize("serialization");
+	
+	//FIM DAS SERIALIZAÇÕES
+	
+	//TERMINO DE INSERÇÃO
+	cout<<"done!"<<endl;	
+	
+	//INTERFACE DE PESQUISA COM O USUARIO
+	int i,j,k,l,m;
+	string palavra,n;
+	clock_t start, end;
+	vector<string> sug;
+    double cpu_time_used;
+    vector<int> documents,docId;
+    
+    
 	while(true){
 		cout<<"Choose the type of query: (1) Normal (2) Syntatic"<<endl;
 		cin >> i;
