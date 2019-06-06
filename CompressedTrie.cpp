@@ -133,6 +133,7 @@ class Compressed_Trie{
 						pos=vec.find(",");
 					}
 					if(vec!="") docs.push_back(stoi(vec));
+					current->rel=docs.size();
 					current->documentIds=docs;
 					break;
 				}else{
