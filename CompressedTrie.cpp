@@ -53,6 +53,85 @@ vector<int> intersection(vector<int> vet1,vector<int> vet2){
 }
 //**** END OF INTERSECTION: ****//
 
+//**** UNION: ****//
+vector<int> uni(vector<int> vet1,vector<int> vet2){
+	if((vet1.empty())||(vet2.empty())){
+		int c = 0;
+		while(c<vet2.size()){
+			vet1.push_back(vet2[c]);
+			c++;
+	}
+		return {vet1};
+	}
+	else{
+		int i,j=0;
+		vector<int> vet3={};
+		while(i<vet1.size()&&j<vet2.size()){
+			if(vet1[i]<vet2[j]){
+				vet3.push_back(vet1[i]);
+				i++;
+				}
+			else if(vet1[i]>vet2[j]){
+				vet3.push_back(vet2[j]);
+				j++;
+				}
+			else{
+				vet3.push_back(vet1[i]);
+				i++;
+				j++;
+			}
+		}
+		if(i == vet1.size()){
+			if(vet2[j] == vet3[vet3.size() - 1]){
+				j++;}
+			while(j < vet2.size()){
+				vet3.push_back(vet2[j]);
+				j++;}}
+		else if(j == vet2.size()){
+			if(vet1[i] == vet3[vet3.size() - 1]){
+				i++;}
+			while(i < vet1.size()){
+				vet3.push_back(vet1[i]);
+				i++;}}
+   	return vet3;}
+}
+//**** END OF UNION: ****//
+
+//**** NEGATION: ****//
+vector<int> neg(vector<int> vet1,vector<int> vet2){
+	if(vet1.empty()){
+		return {};
+	}
+	if((vet2.empty)||vet1[0]>vet2[vet2.size()-1]||vet1[vet1.size()-1]<vet2[0]){
+		return {vet1};
+	}
+	else{
+		int i,j=0;
+		vector<int> vet3={};
+		while(i<vet1.size()&&j<vet2.size()){
+			if(vet1[i]<vet2[j]){
+				vet3.push_back(vet1[i]);
+				i++;
+				}
+			else if(vet1[i]>vet2[j]){
+				j++;
+				}
+			else{
+				i++;
+				j++;
+			}
+		}
+		if(j == vec2.size()){
+			if(vec1[i] == vec2[j - 1]){
+				i++;}
+			while(i < vec1.size()){
+				vec3.push_back(vec1[i]);
+				i++;}}
+				i++;}
+   	return vet3;
+}
+//**** END OF NEGATION: ****//
+
 //******** END OF ARRAY COMPARISON FUNCTIONS ********//
 
 //**************** TRIE CODE ****************//
@@ -263,7 +342,7 @@ class Compressed_Trie{
 		};
 };
 //**************** END OF TRIE CODE ****************//
-////FunÁ„o que printa o texto do artigo
+////Fun√ß√£o que printa o texto do artigo
 void print_texto(int number){
 	string name_directory;
 	std::string s = std::to_string(number);
@@ -286,12 +365,12 @@ int main() {
     vector<int> documents,docId;
     
 	cout<<".. Loading index ";
-	//COME«O DE INSER«√O - INSERIR AQUI AS PALAVRAS NA TRIE COM trie.CT_Insert(palavra,vector<int> de IDS)
+	//COME√áO DE INSER√á√ÉO - INSERIR AQUI AS PALAVRAS NA TRIE COM trie.CT_Insert(palavra,vector<int> de IDS)
 	
 	//TEMPORARIO
 	
 	
- 	//INSER«√O DE PALAVRAS ENQUANTO NAO TEMOS OS DADOS  
+ 	//INSER√á√ÉO DE PALAVRAS ENQUANTO NAO TEMOS OS DADOS  
     while(true){
     	docId.clear();
 		palavra="";
@@ -306,19 +385,19 @@ int main() {
 		}
 		trie.CT_Insert(palavra,docId);	
     }
-    //FIM DA INSER«√O DE PALAVRAS ENQUANTO NAO TEMOS OS DADOS  
+    //FIM DA INSER√á√ÉO DE PALAVRAS ENQUANTO NAO TEMOS OS DADOS  
     
 	
 	//FIM DO TEMPORARIO
 	
-	//SERIALIZA«’ES:
+	//SERIALIZA√á√ïES:
 	
 	//trie.serialize("serialization");
 	//trie.deserialize("serialization");
 	
-	//FIM DAS SERIALIZA«’ES
+	//FIM DAS SERIALIZA√á√ïES
 	
-	//TERMINO DE INSER«√O
+	//TERMINO DE INSER√á√ÉO
 	cout<<"done!"<<endl;	
 	
 	//INTERFACE DE PESQUISA COM O USUARIO
@@ -367,10 +446,10 @@ int main() {
 				}
 			}
 		}else{
-			//PESQUISA SINT¡TICA - LAUDER
+			//PESQUISA SINT√ÅTICA - LAUDER
 			cout<<"Digite a expressao que deseja buscar."<<endl;
 			cin >> palavra;
-			//FIM PESQUISA SINT¡TICA - LAUDER
+			//FIM PESQUISA SINT√ÅTICA - LAUDER
 		}
 	}
 	//FIM DA INTERFACE DE PESQUISA COM O USUARIO
