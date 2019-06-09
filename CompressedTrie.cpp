@@ -195,7 +195,13 @@ class Compressed_Trie{
 				if((palavra[0] != "&")&(palavra[0] !="|")&(palavra[0] !="#")&(palavra[0] !="(")&(palavra[0] !=")")){
 					out_queue.push_back(palavra[0]);
 					if(palavra.size()>1){
-						palavra = palavra[1:palavra.size()];
+						int k = 1;
+						vector<string> aux;
+						while(k<palavra.size()){
+							aux.push_back(palavra[k]);
+							palavra = aux;
+							k++;
+						}
 					}
 					else{palavra.clear();
 					}
@@ -209,7 +215,13 @@ class Compressed_Trie{
 					}
 					op_stack.push_back(palavra[0]);
 					if(palavra.size()>1){
-						palavra = palavra[1:palavra.size()];
+						int k = 1;
+						vector<string> aux;
+						while(k<palavra.size()){
+							aux.push_back(palavra[k]);
+							palavra = aux;
+							k++;
+						}
 					}
 					else{palavra.clear();
 					}				
@@ -217,7 +229,13 @@ class Compressed_Trie{
 				else if(palavra[0]=="("){
 						op_stack.push_back(palavra[0]);
 					if(palavra.size()>1){
-						palavra = palavra[1:palavra.size()];
+						int k = 1;
+						vector<string> aux;
+						while(k<palavra.size()){
+							aux.push_back(palavra[k]);
+							palavra = aux;
+							k++;
+						}
 					}
 					else{palavra.clear();}
 
@@ -230,7 +248,13 @@ class Compressed_Trie{
 				if(op_stack.back=="("){
 					op_stack.pop_back();
 					if(palavra.size()>1){
-						palavra = palavra[1:palavra.size()];
+						int k = 1;
+						vector<string> aux;
+						while(k<palavra.size()){
+							aux.push_back(palavra[k]);
+							palavra = aux;
+							k++;
+						}
 					}
 					else{palavra.clear();}
 
@@ -238,7 +262,7 @@ class Compressed_Trie{
 				}
 			}
 			if(palavra.size() == 0){
-				while(op_stack.size>0){
+				while(op_stack.size()>0){
 					out_queue.push_back(op_stack.back());
 					op_stack.pop_back();
 				}
@@ -247,87 +271,87 @@ class Compressed_Trie{
 		};
 	
 		vector<int> SYP_Operation(vector<string> expression){
-	int i = 0;
-	while(i<expression.size()){
-		if((expression[i]!="&")&(expression[i]!="|")&(expression[i]!="#")){
-			expression[i] = search(root,expression[i]);
-			
-		}
-	i++;	
-	}
-	while(expression.size()>1){
-		int j = 0;
-		while(j<expression.size()){
-			if((expression[j]!="&")&(expression[j]!="|")&(expression[j]!="#")){
-				j++;
+			int i = 0;
+			while(i<expression.size()){
+				if((expression[i]!="&")&(expression[i]!="|")&(expression[i]!="#")){
+					expression[i] = search(root,expression[i]);
+
+				}
+			i++;	
 			}
-			else if(expression[j]=="&"){
-				expression[j]=intersection(expression[j-2],expression[j-1]);
-				if(j>2){
-					vector<string> aux;
-					int k = 0;
-					while(k<j-2){
-						aux.push_back(expression[k]);
+			while(expression.size()>1){
+				int j = 0;
+				while(j<expression.size()){
+					if((expression[j]!="&")&(expression[j]!="|")&(expression[j]!="#")){
+						j++;
 					}
-					while(j<expression.size()){
-						aux.push_back(expression[j]);
-						expression = aux;
-						j++;
-					} 
+					else if(expression[j]=="&"){
+						expression[j]=intersection(expression[j-2],expression[j-1]);
+						if(j>2){
+							vector<string> aux;
+							int k = 0;
+							while(k<j-2){
+								aux.push_back(expression[k]);
+							}
+							while(j<expression.size()){
+								aux.push_back(expression[j]);
+								expression = aux;
+								j++;
+							} 
+						}
+						else{exp = expression[j];
+						expression.clear();
+						expression.push_back(exp);
+
+						}
+						break;
+					}
+					else if(expression[j]=="|"){
+						expression[j]=uni(expression[j-2],expression[j-1]);
+						if(j>2){
+							vector<string> aux;
+							int k = 0;
+							while(k<j-2){
+								aux.push_back(expression[k]);
+							while(j<expression.size()){
+								aux.push_back(expression[j]);
+								expression = aux;
+								j++;
+							} 
+						}
+					}
+						else{exp = expression[j];
+						expression.clear();
+						expression.push_back(exp);
+
+						}
+						break;
+					}
+					else if(expression[j]=="#"){
+						expression[j]=neg(expression[j-2],expression[j-1]);
+						if(j>2){
+							vector<string> aux;
+							int k = 0;
+							while(k<j-2){
+								aux.push_back(expression[k]);
+							while(j<expression.size()){
+								aux.push_back(expression[j]);
+								expression = aux;
+								j++;
+							} 
+						}
+					}
+						else{exp = expression[j];
+						expression.clear();
+						expression.push_back(exp);
+
+						}
+						break;
+						}
+					}
 				}
-				else{exp = expression[j];
-				expression.clear();
-				expression.push_back(exp);
-				
-				}
-				break;
-			}
-			else if(expression[j]=="|"){
-				expression[j]=uni(expression[j-2],expression[j-1]);
-				if(j>2){
-					vector<string> aux;
-					int k = 0;
-					while(k<j-2){
-						aux.push_back(expression[k]);
-					while(j<expression.size()){
-						aux.push_back(expression[j]);
-						expression = aux;
-						j++;
-					} 
-				}
-			}
-				else{exp = expression[j];
-				expression.clear();
-				expression.push_back(exp);
-				
-				}
-				break;
-			}
-			else if(expression[j]=="#"){
-				expression[j]=neg(expression[j-2],expression[j-1]);
-				if(j>2){
-					vector<string> aux;
-					int k = 0;
-					while(k<j-2){
-						aux.push_back(expression[k]);
-					while(j<expression.size()){
-						aux.push_back(expression[j]);
-						expression = aux;
-						j++;
-					} 
-				}
-			}
-				else{exp = expression[j];
-				expression.clear();
-				expression.push_back(exp);
-				
-				}
-				break;
-				}
-			}
-		}
-		return expression;
-		};
+				return expression;
+				};
 
 		vector<string> autoComplete(string palavra){
 			vector<string> sep=split(palavra);
