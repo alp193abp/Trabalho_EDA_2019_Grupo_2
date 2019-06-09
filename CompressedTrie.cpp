@@ -180,6 +180,155 @@ class Compressed_Trie{
 			return documents;
 		};
 		
+		vector<int> SCT_Search(string palavra){
+			vector<string> splited=split(palavra);
+			if(splited.size()==1) return search(root,palavra);
+		    vector<string> expression=SYP(splited);
+		    vector<int> documents=SYP_Operation(expression);
+			return documents;
+		};
+	
+		vector<string> SYP(string palavra){
+			vector<string> out_queue;
+			vector<string> op_stack;
+			while(palavra.size() > 0){
+				if((palavra[0] != "&")&(palavra[0] !="|")&(palavra[0] !="#")&(palavra[0] !="(")&(palavra[0] !=")")){
+					out_queue.push_back(palavra[0]);
+					if(palavra.size()>1){
+						palavra = palavra[1:palavra.size()];
+					}
+					else{palavra.clear();
+					}
+				}
+				else if((palavra[0]=="&")|(palavra[0]=="|")|(palavra[0]=="#")){
+					if(op_stack.size()>0){
+						if((op_stack.back()=="&")|(op_stack.back()=="|")|(op_stack.back()=="#")){
+							out_queue.pushback(op_stack[op_stack.size()-1]);
+							op_stack.pop_back();
+						}
+					}
+					op_stack.push_back(palavra[0]);
+					if(palavra.size()>1){
+						palavra = palavra[1:palavra.size()];
+					}
+					else{palavra.clear();
+					}				
+				}
+				else if(palavra[0]=="("){
+						op_stack.push_back(palavra[0]);
+					if(palavra.size()>1){
+						palavra = palavra[1:palavra.size()];
+					}
+					else{palavra.clear();}
+
+				}
+				else if(palavra[0]==")"){
+					while(op_stack[op_stack.size()]!="("){
+						out_queue.push_back(op_stack.back());
+						op_stack.pop_back();
+					}
+				if(op_stack.back=="("){
+					op_stack.pop_back();
+					if(palavra.size()>1){
+						palavra = palavra[1:palavra.size()];
+					}
+					else{palavra.clear();}
+
+				}
+				}
+			}
+			if(palavra.size() == 0){
+				while(op_stack.size>0){
+					out_queue.push_back(op_stack.back());
+					op_stack.pop_back();
+				}
+			}
+		return out_queue;
+		};
+	
+		vector<int> SYP_Operation(vector<string> expression){
+	int i = 0;
+	while(i<expression.size()){
+		if((expression[i]!="&")&(expression[i]!="|")&(expression[i]!="#")){
+			expression[i] = search(root,expression[i]);
+			
+		}
+	i++;	
+	}
+	while(expression.size()>1){
+		int j = 0;
+		while(j<expression.size()){
+			if((expression[j]!="&")&(expression[j]!="|")&(expression[j]!="#")){
+				j++;
+			}
+			else if(expression[j]=="&"){
+				expression[j]=intersection(expression[j-2],expression[j-1]);
+				if(j>2){
+					vector<string> aux;
+					int k = 0;
+					while(k<j-2){
+						aux.push_back(expression[k]);
+					}
+					while(j<expression.size()){
+						aux.push_back(expression[j]);
+						expression = aux;
+						j++;
+					} 
+				}
+				else{exp = expression[j];
+				expression.clear();
+				expression.push_back(exp);
+				
+				}
+				break;
+			}
+			else if(expression[j]=="|"){
+				expression[j]=uni(expression[j-2],expression[j-1]);
+				if(j>2){
+					vector<string> aux;
+					int k = 0;
+					while(k<j-2){
+						aux.push_back(expression[k]);
+					while(j<expression.size()){
+						aux.push_back(expression[j]);
+						expression = aux;
+						j++;
+					} 
+				}
+			}
+				else{exp = expression[j];
+				expression.clear();
+				expression.push_back(exp);
+				
+				}
+				break;
+			}
+			else if(expression[j]=="#"){
+				expression[j]=neg(expression[j-2],expression[j-1]);
+				if(j>2){
+					vector<string> aux;
+					int k = 0;
+					while(k<j-2){
+						aux.push_back(expression[k]);
+					while(j<expression.size()){
+						aux.push_back(expression[j]);
+						expression = aux;
+						j++;
+					} 
+				}
+			}
+				else{exp = expression[j];
+				expression.clear();
+				expression.push_back(exp);
+				
+				}
+				break;
+				}
+			}
+		}
+		return expression;
+		};
+
 		vector<string> autoComplete(string palavra){
 			vector<string> sep=split(palavra);
 			vector<string> palUnica,sugPalFinal,sugFinal;
@@ -447,8 +596,43 @@ int main() {
 			}
 		}else{
 			//PESQUISA SINTÁTICA - LAUDER
-			cout<<"Digite a expressao que deseja buscar."<<endl;
-			cin >> palavra;
+			if(i==2){
+			n.clear();
+			sug.clear();
+			cout<<"Enter your query:"<<endl;
+			std::getline(std::cin >> std::ws, palavra);
+			start = clock();
+			documents=trie.SCT_Search(palavra);
+			end = clock();
+			cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
+			j=documents.size();
+			if(j==0){
+				cout<<"No results were found ( "<<cpu_time_used<<" seconds )"<<endl;
+				//sug=trie.autoComplete(palavra);
+				//cout<<"Did you mean:"<<endl;
+				//for(int jb=0;jb<sug.size();jb++) cout<<sug[jb]<<endl;
+			}else{
+				cout<<".. About "<<j<<" results ( "<<cpu_time_used<<" seconds )"<<endl;
+				while(k<j){
+					for(int m=k;m<min(k+20,j);m++){
+						cout<<"["<<m+1<<"] ";
+						cout<<"Title of document "<<documents[m]<<endl;
+					}
+					cout<<"Do you want to open any result [n for more results or result number] or do another query [q]?"<<endl;
+					cin >> n;
+					if(n=="q") break;
+					else{
+						if(n=="n") k=k+20;
+						else{
+							l=stoi(n);
+							if(l>j || l<=k || l>l+20) cout<<"No document "<<l<<endl;
+							else{
+							print_texto(l);
+							}
+						}
+					}
+				}
+			}
 			//FIM PESQUISA SINTÁTICA - LAUDER
 		}
 	}
