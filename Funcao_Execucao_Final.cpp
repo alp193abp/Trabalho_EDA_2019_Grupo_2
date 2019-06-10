@@ -301,7 +301,7 @@ class Compressed_Trie{
 		};
 		
 		vector<int> SCT_Search(string palavra){
-			vector<string> splited=split(palavra);
+			vector<string> splited=split_lauder(palavra);
 			if(splited.size()==1) return *search(root,palavra);
 		    vector<string> expression=SYP(splited);
 		    vector<int> documents=SYP_Operation(expression);
@@ -596,6 +596,19 @@ class Compressed_Trie{
 		}
 		
 	private:
+	
+		vector<string> split_lauder(string palavra){
+			string::size_type x = palavra.find(" ");
+			if(x==string::npos) return {palavra};
+			vector<string> vet={};
+			if(palavra.substr(0,x)!="") vet.push_back(palavra.substr(0,x));
+			while(x!=string::npos){
+				palavra=palavra.substr(x+1);
+				x=palavra.find(" ");
+				if(palavra.substr(0,x)!="") vet.push_back(palavra.substr(0,x));
+			}
+			return vet;
+		};
 		
 		void PrivSerialize(Node* test,string& serialization){
 			for(auto const& imap: test->LePo) {
@@ -793,6 +806,7 @@ int main (){
 	string palavra,n;
 	vector<string> sug;
     vector<int>* documents;
+	vector<int> documents2;
 	vector<int> docs={};
     map <int,string> titulos;
 	
