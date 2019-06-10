@@ -13,15 +13,119 @@
 
 using namespace std;
 
+//******** ARRAY COMPARISON FUNCTIONS ********//
+
+//**** INTERSECTION: ****//
+vector<int> inter(vector<int> vet1,vector<int> vet2){
+	if((vet1.empty())||(vet2.empty())||(vet1[vet1.size()-1]<vet2[0])||(vet2[vet2.size()-1]<vet1[0])){
+		return {};
+	}
+	int i,j=0;
+	vector<int> vet3={};
+	while(i<vet1.size()&&j<vet2.size()){
+		if(vet1[i]<vet2[j]) i++;
+		else if(vet1[i]>vet2[j]) j++;
+		else{
+			vet3.push_back(vet1[i]);
+			i++;
+			j++;
+		}
+	}
+	return vet3;
+}
+//**** END OF INTERSECTION: ****//
+
+//**** UNION: ****//
+vector<int> uni(vector<int> vet1,vector<int> vet2){
+	vector<int> vet3;
+	if((vet1.empty())||(vet2.empty())){
+		int c = 0;
+		while(c<vet2.size()){
+			vet1.push_back(vet2[c]);
+			c++;
+	}
+		return {vet1};
+	}
+	else{
+		int i = 0;
+		int j = 0;
+		while(i<vet1.size()&&j<vet2.size()){
+			if(vet1[i]<vet2[j]){
+				vet3.push_back(vet1[i]);
+				i++;
+				}
+			else if(vet1[i]>vet2[j]){
+				vet3.push_back(vet2[j]);
+				j++;
+				}
+			else{
+				vet3.push_back(vet1[i]);
+				i++;
+				j++;
+			}
+		}
+		if(i == vet1.size()){
+			if(vet2[j] == vet3.back()){
+				j++;}
+			while(j < vet2.size()){
+				vet3.push_back(vet2[j]);
+				j++;}}
+		else if(j == vet2.size()){
+			if(vet1[i] == vet3.back()){
+				i++;}
+			while(i < vet1.size()){
+				vet3.push_back(vet1[i]);
+				i++;}}
+   	return vet3;}
+}
+//**** END OF UNION: ****//
+
+//**** NEGATION: ****//
+vector<int> neg(vector<int> vet1,vector<int> vet2){
+	vector<int> vet3;
+	if(vet1.empty()){
+		return {};
+	}
+	if((vet2.empty())||vet1[0]>vet2.back()||vet1.back()<vet2[0]){
+		return {vet1};
+	}
+	else{
+		int i,j=0;
+		while(i<vet1.size()&&j<vet2.size()){
+			if(vet1[i]<vet2[j]){
+				vet3.push_back(vet1[i]);
+				i++;
+				}
+			else if(vet1[i]>vet2[j]){
+				j++;
+				}
+			else{
+				i++;
+				j++;
+			}
+		}
+		if(j == vet2.size()){
+			if(vet1[i] == vet2[j - 1]){
+				i++;}
+			while(i < vet1.size()){
+				vet3.push_back(vet1[i]);
+				i++;}}
+				i++;}
+   	return vet3;
+}
+//**** END OF NEGATION: ****//
+
+//******** END OF ARRAY COMPARISON FUNCTIONS ********//
+
 void strip(string &texto){
-	//Variaveis pra funÁ„o
+	//Variaveis pra fun√ß√£o
 	string alphanormal = "ABCDEFGHIJKLMNOPQRSTUVXWYZabcdefghijklmnopqrstuvxwyz";
 	string num = "0123456789";
-	string com_acento = "¿¡¬√ƒ≈∆‡·„‚‰ÂÊ»… ÀËÈÍÎÃÕŒœÏÌÓÔ“”‘’÷ÿÚÛÙıˆ¯Ÿ⁄€‹˘˙˚¸«Á—Ò›˝ˇ–";
+	string com_acento = "√Ä√Å√Ç√É√Ñ√Ö√Ü√†√°√£√¢√§√•√¶√à√â√ä√ã√®√©√™√´√å√ç√é√è√¨√≠√Æ√Ø√í√ì√î√ï√ñ√ò√≤√≥√¥√µ√∂√∏√ô√ö√õ√ú√π√∫√ª√º√á√ß√ë√±√ù√Ω√ø√ê√∞";
 	string sem_acento = "aaaaaaaaaaaaaaeeeeeeeeiiiiiiiioooooooooooouuuuuuuuccnnyyydd";
 	string alpha = alphanormal+com_acento;
 	string::size_type ac;
-	//Variaveis indicadoras: 0 = simbolos e espaÁo; 2 = letras; 3 = numeros
+	//Variaveis indicadoras: 0 = simbolos e espa√ßo; 2 = letras; 3 = numeros
 	int anterior = 0, atual = 0;
 	for (int i=0;i<texto.size();i++){
 		//Letras sem acento
@@ -35,7 +139,7 @@ void strip(string &texto){
 			anterior = atual;
 			atual = 3;
 		}
-		//EspaÁo
+		//Espa√ßo
 		else if (texto[i]==' '){
 			anterior = atual;
 			atual = 0;
@@ -195,6 +299,269 @@ class Compressed_Trie{
 			intersection(documents,docs);
 			return &docs;
 		};
+		
+		vector<int> SCT_Search(string palavra){
+			vector<string> splited=split(palavra);
+			if(splited.size()==1) return *search(root,palavra);
+		    vector<string> expression=SYP(splited);
+		    vector<int> documents=SYP_Operation(expression);
+			return documents;
+		};
+	
+		vector<string> SYP(vector<string> palavra){
+			vector<string> out_queue;
+			vector<string> op_stack;
+			while(palavra.size() > 0){
+				if((palavra[0] != "&")&(palavra[0] !="|")&(palavra[0] !="#")&(palavra[0] !="(")&(palavra[0] !=")")){
+					out_queue.push_back(palavra[0]);
+					if(palavra.size()>1){
+						int k = 1;
+						while(k<palavra.size()){
+							palavra[k-1] = palavra[k];
+							k++;
+						}
+						palavra.pop_back();
+					}
+					else{palavra.clear();
+					}
+				}else if((palavra[0]=="&")||(palavra[0]=="|")||(palavra[0]=="#")){
+					if(op_stack.size()>0){
+						if((op_stack.back()=="&")||(op_stack.back()=="|")||(op_stack.back()=="#")){
+							out_queue.push_back(op_stack.back());
+							op_stack.pop_back();
+							op_stack.push_back(palavra[0]);
+							int k = 1;
+								while(k<palavra.size()){
+									palavra[k-1] = palavra[k];
+									k++;}
+									palavra.pop_back();
+						}else{op_stack.push_back(palavra[0]);
+							if(palavra.size()>1){
+								int k = 1;
+								while(k<palavra.size()){
+									palavra[k-1] = palavra[k];
+									k++;}
+									palavra.pop_back();
+									}}
+					}else{op_stack.push_back(palavra[0]);
+						if(palavra.size()>1){
+							int k = 1;
+							while(k<palavra.size()){
+								palavra[k-1] = palavra[k];
+								k++;
+							}
+							palavra.pop_back();
+							}
+							else{
+							palavra.clear();
+							}
+						}
+					}else if(palavra[0]=="("){
+						op_stack.push_back(palavra[0]);
+						if(palavra.size()>1){
+							int k = 1;
+							while(k<palavra.size()){
+								palavra[k-1] = palavra[k];
+								k++;
+							}
+							palavra.pop_back();
+							}
+							else{
+							palavra.clear();
+								}
+				}else if(palavra[0]==")"){
+					while(op_stack.back()!="("){
+						out_queue.push_back(op_stack.back());
+						op_stack.pop_back();
+					}
+				if(op_stack.back()=="("){
+					op_stack.pop_back();
+					if(palavra.size()>1){
+						int k = 1;
+						while(k<palavra.size()){
+							palavra[k-1] = palavra[k];
+							k++;
+						}
+						palavra.pop_back();
+						}else{
+						palavra.clear();
+							}
+
+				}
+				}
+			}
+			if(palavra.size() == 0){
+				while(op_stack.size()>0){
+					out_queue.push_back(op_stack.back());
+					op_stack.pop_back();
+				}
+			}
+		return out_queue;
+		};
+	
+		vector<int> SYP_Operation(vector<string> expression){
+			int i = 0;
+			vector<vector<int>> conjuntos;
+			while(i<expression.size()){
+				if((expression[i]!="&")&&(expression[i]!="|")&&(expression[i]!="#")){
+					conjuntos.push_back(*search(root,expression[i]));
+				}else{
+				conjuntos.push_back(conjuntos[i-1]);
+				}
+			i++;
+			}
+			vector<vector<int>> aux;
+			vector<string> aux2;
+			while(expression.size()>1){
+				int j = 0;
+				while(j<expression.size()){
+					if((expression[j]!="&")&&(expression[j]!="|")&&(expression[j]!="#")){
+						j++;
+					}else if(expression[j]=="&"){
+						conjuntos[j]=inter(conjuntos[j-2],conjuntos[j-1]);
+						expression[j]="set";
+						
+						if(j>2){
+							aux.clear();
+							aux2.clear();
+							int k = 0;
+							while(k<j-2){
+								aux.push_back(conjuntos[k]);
+								aux2.push_back("set");
+								k++;
+							}
+							while(j<conjuntos.size()){
+								aux.push_back(conjuntos[j]);
+								aux2.push_back(expression[j]);
+								j++;
+							}
+						conjuntos.clear();
+						expression.clear();
+						int t = 0;
+						while(t<aux.size()){
+							conjuntos.push_back(aux[t]);
+							expression.push_back(aux2[t]);
+							t++;
+					}
+					aux.clear();
+					aux2.clear(); 
+						}else{aux.clear();
+							aux2.clear();
+							int c = 2;
+							while(c < conjuntos.size()){
+								aux.push_back(conjuntos[c]);
+								aux2.push_back(expression[c]);
+								c++;	
+							}
+							aux2[0] = "set";
+							conjuntos.clear();
+							expression.clear();
+							int t = 0;
+							while(t<aux.size()){
+								conjuntos.push_back(aux[t]);
+								expression.push_back(aux2[t]);
+								t++;
+							}
+					}break;
+				}else if(expression[j]=="|"){
+					conjuntos[j]=uni(conjuntos[j-2],conjuntos[j-1]);
+					expression[j]="set";
+					
+					if(j>2){
+						aux.clear();
+						aux2.clear();
+						int k = 0;
+						while(k<j-2){
+							aux.push_back(conjuntos[k]);
+							aux2.push_back("set");
+							k++;
+						}
+						while(j<conjuntos.size()){
+							aux.push_back(conjuntos[j]);
+							aux2.push_back(expression[j]);
+							j++;
+						}
+						conjuntos.clear();
+						expression.clear();
+						int t = 0;
+						while(t<aux.size()){
+							conjuntos.push_back(aux[t]);
+							expression.push_back(aux2[t]);
+							t++;
+					}
+					conjuntos.clear();
+						expression.clear();
+						t = 0;
+						while(t<aux.size()){
+							conjuntos.push_back(aux[t]);
+							expression.push_back(aux2[t]);
+							t++;
+					}
+					aux.clear();
+					aux2.clear();
+					}else{aux.clear();
+						aux2.clear();
+					int c = 2;
+						while(c < conjuntos.size()){
+							aux.push_back(conjuntos[c]);
+							aux2.push_back(expression[c]);
+							c++;	
+						}
+						aux2[0] = "set";
+						conjuntos.clear();
+						expression.clear();
+						int t = 0;
+						while(t<aux.size()){
+							conjuntos.push_back(aux[t]);
+							expression.push_back(aux2[t]);
+							t++;
+						}
+				}break;
+				}else if(expression[j]=="#"){
+					conjuntos[j]=neg(conjuntos[j-2],conjuntos[j-1]);
+					expression[j]="set";
+					
+					if(j>2){
+						int k = 0;
+						aux.clear();
+						aux2.clear();
+						while(k<j-2){
+							aux.push_back(conjuntos[k]);
+							aux2.push_back("set");
+							k++;
+						}
+						while(j<conjuntos.size()){
+							aux.push_back(conjuntos[j]);
+							aux2.push_back(expression[j]);
+							conjuntos = aux;
+							expression = aux2;
+							j++;
+						} 
+					}
+					else{aux.clear();
+						aux2.clear();
+					int c = 2;
+						while(c < conjuntos.size()){
+							aux.push_back(conjuntos[c]);
+							aux2.push_back(expression[c]);
+							c++;	
+						}
+						aux2[0] = "set";
+						conjuntos.clear();
+						expression.clear();
+						int t = 0;
+						while(t<aux.size()){
+							conjuntos.push_back(aux[t]);
+							expression.push_back(aux2[t]);
+							t++;
+						}
+				}break;
+				}
+					}
+				}
+				return conjuntos[0];
+				};
+
 		
 		vector<string> autoComplete(string palavra){
 			vector<string> sep=split(palavra);
@@ -492,10 +859,45 @@ int main (){
 				}
 			}
 		}else{
-			//PESQUISA SINT¡TICA - LAUDER
-			cout<<"Digite a expressao que deseja buscar."<<endl;
-			cin >> palavra;
-			//FIM PESQUISA SINT¡TICA - LAUDER
+			//PESQUISA SINT√ÅTICA - LAUDER
+			if(i==2){
+			n.clear();
+			sug.clear();
+			cout<<"Enter your query:"<<endl;
+			std::getline(std::cin >> std::ws, palavra);
+			start = clock();
+			documents=trie.SCT_Search(palavra);
+			end = clock();
+			cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
+			j=documents.size();
+			if(j==0){
+				cout<<"No results were found ( "<<cpu_time_used<<" seconds )"<<endl;
+				//sug=trie.autoComplete(palavra);
+				//cout<<"Did you mean:"<<endl;
+				//for(int jb=0;jb<sug.size();jb++) cout<<sug[jb]<<endl;
+			}else{
+				cout<<".. About "<<j<<" results ( "<<cpu_time_used<<" seconds )"<<endl;
+				while(k<j){
+					for(int m=k;m<min(k+20,j);m++){
+						cout<<"["<<m+1<<"] ";
+						cout<<"Title of document "<<documents[m]<<endl;
+					}
+					cout<<"Do you want to open any result [n for more results or result number] or do another query [q]?"<<endl;
+					cin >> n;
+					if(n=="q") break;
+					else{
+						if(n=="n") k=k+20;
+						else{
+							l=stoi(n);
+							if(l>j || l<=k || l>l+20) cout<<"No document "<<l<<endl;
+							else{
+							print_texto(l);
+							}
+						}
+					}
+				}
+			}
+			//FIM PESQUISA SINT√ÅTICA - LAUDER
 		}
 	}
 	//FIM DA INTERFACE DE PESQUISA COM O USUARIO
