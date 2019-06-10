@@ -188,7 +188,7 @@ class Compressed_Trie{
 			return documents;
 		};
 	
-		vector<string> SYP(string palavra){
+		vector<string> SYP(vector<string> palavra){
 			vector<string> out_queue;
 			vector<string> op_stack;
 			while(palavra.size() > 0){
@@ -196,12 +196,11 @@ class Compressed_Trie{
 					out_queue.push_back(palavra[0]);
 					if(palavra.size()>1){
 						int k = 1;
-						vector<string> aux;
 						while(k<palavra.size()){
-							aux.push_back(palavra[k]);
-							palavra = aux;
+							palavra[k-1] = palavra[k];
 							k++;
 						}
+						palavra.pop_back();
 					}
 					else{palavra.clear();
 					}
@@ -209,35 +208,36 @@ class Compressed_Trie{
 				else if((palavra[0]=="&")|(palavra[0]=="|")|(palavra[0]=="#")){
 					if(op_stack.size()>0){
 						if((op_stack.back()=="&")|(op_stack.back()=="|")|(op_stack.back()=="#")){
-							out_queue.pushback(op_stack[op_stack.size()-1]);
+							out_queue.push_back(op_stack.back());
 							op_stack.pop_back();
 						}
-					}
-					op_stack.push_back(palavra[0]);
-					if(palavra.size()>1){
-						int k = 1;
-						vector<string> aux;
-						while(k<palavra.size()){
-							aux.push_back(palavra[k]);
-							palavra = aux;
-							k++;
+					}else{op_stack.push_back(palavra[0]);
+						if(palavra.size()>1){
+							int k = 1;
+							while(k<palavra.size()){
+								palavra[k-1] = palavra[k];
+								k++;
+							}
+							palavra.pop_back();
+							}
+							else{
+							palavra.clear();
+							}
 						}
 					}
-					else{palavra.clear();
-					}				
-				}
 				else if(palavra[0]=="("){
 						op_stack.push_back(palavra[0]);
 					if(palavra.size()>1){
 						int k = 1;
-						vector<string> aux;
 						while(k<palavra.size()){
-							aux.push_back(palavra[k]);
-							palavra = aux;
+							palavra[k-1] = palavra[k];
 							k++;
 						}
-					}
-					else{palavra.clear();}
+						palavra.pop_back();
+						}
+						else{
+						palavra.clear();
+							}
 
 				}
 				else if(palavra[0]==")"){
@@ -245,18 +245,19 @@ class Compressed_Trie{
 						out_queue.push_back(op_stack.back());
 						op_stack.pop_back();
 					}
-				if(op_stack.back=="("){
+				if(op_stack.back()=="("){
 					op_stack.pop_back();
 					if(palavra.size()>1){
 						int k = 1;
-						vector<string> aux;
 						while(k<palavra.size()){
-							aux.push_back(palavra[k]);
-							palavra = aux;
+							palavra[k-1] = palavra[k];
 							k++;
 						}
-					}
-					else{palavra.clear();}
+						palavra.pop_back();
+						}
+						else{
+						palavra.clear();
+							}
 
 				}
 				}
@@ -272,13 +273,17 @@ class Compressed_Trie{
 	
 		vector<int> SYP_Operation(vector<string> expression){
 			int i = 0;
+			vector<vector<int>> conjuntos;
 			while(i<expression.size()){
 				if((expression[i]!="&")&(expression[i]!="|")&(expression[i]!="#")){
-					expression[i] = search(root,expression[i]);
-
+					conjuntos.push_back(search(root,expression[i]));
 				}
-			i++;	
+				else{conjuntos.push_back(conjuntos[i-1]);
+				}
+			i++;
 			}
+			vector<vector<int>> aux;
+			vector<string> aux2;
 			while(expression.size()>1){
 				int j = 0;
 				while(j<expression.size()){
@@ -286,71 +291,111 @@ class Compressed_Trie{
 						j++;
 					}
 					else if(expression[j]=="&"){
-						expression[j]=intersection(expression[j-2],expression[j-1]);
+						conjuntos[j]=intersection(conjuntos[j-2],conjuntos[j-1]);
+						expression[j]="set";
+						
 						if(j>2){
-							vector<string> aux;
 							int k = 0;
 							while(k<j-2){
-								aux.push_back(expression[k]);
+								aux.push_back(conjuntos[k]);
+								aux2.push_back("set");
 							}
-							while(j<expression.size()){
-								aux.push_back(expression[j]);
-								expression = aux;
+							while(j<conjuntos.size()){
+								aux.push_back(conjuntos[j]);
+								aux2.push_back(expression[j]);
+								conjuntos = aux;
+								expression = aux2;
 								j++;
 							} 
 						}
-						else{exp = expression[j];
-						expression.clear();
-						expression.push_back(exp);
-
-						}
+						else{int c = 2;
+							while(c < conjuntos.size()){
+								aux.push_back(conjuntos[c]);
+								aux2.push_back(expression[c]);
+								c++;	
+							}
+							conjuntos.clear();
+							expression.clear();
+							int t = 0;
+							while(t<aux.size()){
+								conjuntos.push_back(aux[t]);
+								expression.push_back(aux2[t]);
+								t++;
+							}
 						break;
 					}
-					else if(expression[j]=="|"){
-						expression[j]=uni(expression[j-2],expression[j-1]);
-						if(j>2){
-							vector<string> aux;
-							int k = 0;
-							while(k<j-2){
-								aux.push_back(expression[k]);
-							while(j<expression.size()){
-								aux.push_back(expression[j]);
-								expression = aux;
-								j++;
-							} 
+				}else if(expression[j]=="|"){
+					conjuntos[j]=uni(conjuntos[j-2],conjuntos[j-1]);
+					expression[j]="set";
+					
+					if(j>2){
+						int k = 0;
+						while(k<j-2){
+							aux.push_back(conjuntos[k]);
+							aux2.push_back("set");
 						}
+						while(j<conjuntos.size()){
+							aux.push_back(conjuntos[j]);
+							aux2.push_back(expression[j]);
+							conjuntos = aux;
+							expression = aux2;
+							j++;
+						} 
 					}
-						else{exp = expression[j];
+					else{int c = 2;
+						while(c < conjuntos.size()){
+							aux.push_back(conjuntos[c]);
+							aux2.push_back(expression[c]);
+							c++;	
+						}
+						conjuntos.clear();
 						expression.clear();
-						expression.push_back(exp);
-
+						int t = 0;
+						while(t<aux.size()){
+							conjuntos.push_back(aux[t]);
+							expression.push_back(aux2[t]);
+							t++;
 						}
-						break;
-					}
-					else if(expression[j]=="#"){
-						expression[j]=neg(expression[j-2],expression[j-1]);
-						if(j>2){
-							vector<string> aux;
-							int k = 0;
-							while(k<j-2){
-								aux.push_back(expression[k]);
-							while(j<expression.size()){
-								aux.push_back(expression[j]);
-								expression = aux;
-								j++;
-							} 
+					break;
+				}
+				}else if(expression[j]=="#"){
+					conjuntos[j]=neg(conjuntos[j-2],conjuntos[j-1]);
+					expression[j]="set";
+					
+					if(j>2){
+						int k = 0;
+						while(k<j-2){
+							aux.push_back(conjuntos[k]);
+							aux2.push_back("set");
 						}
+						while(j<conjuntos.size()){
+							aux.push_back(conjuntos[j]);
+							aux2.push_back(expression[j]);
+							conjuntos = aux;
+							expression = aux2;
+							j++;
+						} 
 					}
-						else{exp = expression[j];
+					else{int c = 2;
+						while(c < conjuntos.size()){
+							aux.push_back(conjuntos[c]);
+							aux2.push_back(expression[c]);
+							c++;	
+						}
+						conjuntos.clear();
 						expression.clear();
-						expression.push_back(exp);
-
+						int t = 0;
+						while(t<aux.size()){
+							conjuntos.push_back(aux[t]);
+							expression.push_back(aux2[t]);
+							t++;
 						}
-						break;
-						}
+					break;
+				}
+				}
 					}
 				}
-				return expression;
+				return conjuntos[0];
 				};
 
 		vector<string> autoComplete(string palavra){
