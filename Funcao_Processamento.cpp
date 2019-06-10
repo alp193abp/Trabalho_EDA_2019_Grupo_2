@@ -107,10 +107,7 @@ void strip(string &texto){
 		else{
 			ac=com_acento.find(texto[i]);
 			if (ac==string::npos){
-				//Caso especifico se for --
-				if (texto.substr(i,2)=="--") texto.replace(i,2," ");
-				//Caso especifico se for apostrofo ou hifen
-				else if (texto[i]=='\'' or texto[i]=='-'){
+				if (texto[i]=='\'' or texto[i]=='-'){
 					if (alphanormal.find(texto[i-1])==string::npos || alpha.find(texto[i+1])==string::npos) texto[i]=' ';
 				}
 				//Outros simbolos
@@ -255,7 +252,7 @@ void sort(vector<int> &vetor){
 int main (){
 	//Gera variaveis
 	int num_arquivos;
-	num_arquivos = 5;
+	num_arquivos = 164;
 	string inicio,fim,nome,doc_texto;
 	clock_t start, end;
 	start = clock();
