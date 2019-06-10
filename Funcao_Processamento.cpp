@@ -251,8 +251,7 @@ void sort(vector<int> &vetor){
 
 int main (){
 	//Gera variaveis
-	int num_arquivos;
-	num_arquivos = 164;
+	int num_arquivos = 164;
 	string inicio,fim,nome,doc_texto;
 	clock_t start, end;
 	start = clock();
@@ -269,7 +268,7 @@ int main (){
 	for (int h=0;h<num_arquivos;h++){
 		inicio = to_string(10000*h);
 		fim = to_string(10000*(h+1));
-		nome = "raw/englishText_"+inicio+"_"+fim;
+		nome = "doc/englishText_"+inicio+"_"+fim;
 		cout << nome << endl;
 		//Abre o arquivo e cria uma string contendo tudo dele
 		doc_texto = abrir(nome);
