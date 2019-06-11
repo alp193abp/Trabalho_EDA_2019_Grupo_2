@@ -284,10 +284,19 @@ class Compressed_Trie{
 		};
 		
 		vector<int>* CT_Search(string palavra,vector<int>& docs){
-			cout<<palavra<<endl;
-			strip(palavra);
-			cout<<palavra<<endl;
-			vector<string> splited=split(palavra);
+			vector<string> splited=split_lauder(palavra);
+			vector<string> uniques={};
+			bool k;
+			for(int i=0;i<splited.size();i++){
+				k=true;
+				for(int j=0;j<uniques.size();j++){
+					if(splited[i]==uniques[j]){
+						k=false;
+						break;
+					}
+				}
+				if(k) uniques.push_back(splited[i]);
+			}
 			vector<int>* test;
 			if(splited.size()==1) return search(root,palavra);
 		    vector<vector<int>*> documents;
@@ -564,7 +573,7 @@ class Compressed_Trie{
 
 		
 		vector<string> autoComplete(string palavra){
-			vector<string> sep=split(palavra);
+			vector<string> sep=split_lauder(palavra);
 			vector<string> palUnica,sugPalFinal,sugFinal;
 			string x;
 			Node* test;
@@ -874,27 +883,29 @@ int main (){
 			}
 		}else{
 			//PESQUISA SINTÁTICA - LAUDER
-			if(i==2){
+		
 			n.clear();
 			sug.clear();
 			cout<<"Enter your query:"<<endl;
 			std::getline(std::cin >> std::ws, palavra);
-			start = clock();
-			documents=trie.SCT_Search(palavra);
-			end = clock();
-			cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
-			j=documents.size();
+			auto start = chrono::steady_clock::now();
+			documents2=trie.SCT_Search(palavra);
+			auto end = chrono::steady_clock::now();
+			auto cpu_time_used = end - start;
+			j=documents2.size();
 			if(j==0){
-				cout<<"No results were found ( "<<cpu_time_used<<" seconds )"<<endl;
-				//sug=trie.autoComplete(palavra);
-				//cout<<"Did you mean:"<<endl;
-				//for(int jb=0;jb<sug.size();jb++) cout<<sug[jb]<<endl;
+				cout<<"No results were found ( ";
+				cout << fixed << showpoint << setprecision(10) << chrono::duration <double> (cpu_time_used).count() << " seconds)" << endl;
 			}else{
-				cout<<".. About "<<j<<" results ( "<<cpu_time_used<<" seconds )"<<endl;
+				cout<<".. About "<<j<<" results ( ";
+				cout << fixed << showpoint << setprecision(10) << chrono::duration <double> (cpu_time_used).count() << " seconds)" << endl;
 				while(k<j){
+					vector<int>::iterator It=documents->begin();
+					advance(It,k);
 					for(int m=k;m<min(k+20,j);m++){
 						cout<<"["<<m+1<<"] ";
-						cout<<"Title of document "<<documents[m]<<endl;
+						cout<< titulos[*It] <<endl;
+						It++;
 					}
 					cout<<"Do you want to open any result [n for more results or result number] or do another query [q]?"<<endl;
 					cin >> n;
@@ -903,9 +914,12 @@ int main (){
 						if(n=="n") k=k+20;
 						else{
 							l=stoi(n);
-							if(l>j || l<=k || l>l+20) cout<<"No document "<<l<<endl;
+							if(l>j || l<=0 ) cout<<"No document "<<l<<endl;
 							else{
-							print_texto(l);
+								vector<int>::iterator It2=documents->begin();
+								advance(It2,l-1);
+								cout<<endl<<titulos[*It2]<<endl;
+								print_texto(*It2);
 							}
 						}
 					}
