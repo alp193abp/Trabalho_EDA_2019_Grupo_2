@@ -26,6 +26,6 @@ Eles se encontram em: https://gvmail-my.sharepoint.com/:f:/g/personal/b37012_fgv
 ### Integrantes
 
 Atílio Leitão Pellegrino (https://github.com/alp193abp) <br />
-João Vinícius Primaki Prado (https://github.com/JoaoViniciusPR) <br />
+João Vinícius Primaki Prado (https://github.com/jvprimakipr) <br />
 Lauder Leal dos Santos (https://github.com/lauderleal) <br />
 Tomás Ferranti (https://github.com/TomasFerranti)
